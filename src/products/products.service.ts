@@ -17,6 +17,10 @@ export class ProductsService {
     featured?: boolean;
     page?: number;
     limit?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
   }): Promise<{ products: ProductDocument[]; total: number }> {
     const filter: any = {};
     const page = query?.page || 1;
@@ -34,11 +38,24 @@ export class ProductsService {
       filter.featured = query.featured;
     }
 
+    if (query?.minPrice !== undefined || query?.maxPrice !== undefined) {
+      filter.price = {};
+      if (query.minPrice !== undefined) filter.price.$gte = query.minPrice;
+      if (query.maxPrice !== undefined) filter.price.$lte = query.maxPrice;
+    }
+
+    const sort: any = {};
+    if (query?.sortBy) {
+      sort[query.sortBy] = query.sortOrder === 'asc' ? 1 : -1;
+    } else {
+      sort.createdAt = -1;
+    }
+
     const total = await this.productModel.countDocuments(filter).exec();
     const products = await this.productModel
       .find(filter)
       .populate('category')
-      .sort({ createdAt: -1 })
+      .sort(sort)
       .skip((page - 1) * limit)
       .limit(limit)
       .exec();

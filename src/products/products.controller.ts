@@ -25,6 +25,10 @@ export class ProductsController {
     @Query('featured') featured?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     return this.productsService.findAll({
       search,
@@ -32,6 +36,10 @@ export class ProductsController {
       featured: featured === 'true' ? true : undefined,
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
+      minPrice: minPrice ? parseFloat(minPrice) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+      sortBy,
+      sortOrder,
     });
   }
 

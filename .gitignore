@@ -1,0 +1,21 @@
+# dependencies
+/node_modules
+/dist
+/uploads/*
+!/uploads/.gitkeep
+
+# misc
+.DS_Store
+*.pem
+*.log
+
+# env files
+.env
+.env.local
+
+# test
+/coverage
+/test-results
+
+# tsbuildinfo
+*.tsbuildinfo

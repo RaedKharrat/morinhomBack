@@ -29,8 +29,8 @@ export class PromoCodesController {
   }
 
   @Post('validate/:code')
-  validate(@Param('code') code: string, @Body('total') total: number) {
-    return this.promoCodesService.validateCode(code, total);
+  validate(@Param('code') code: string, @Body('cart') cart: any[]) {
+    return this.promoCodesService.validateCode(code, cart);
   }
 
   @Post('increment-usage/:code')

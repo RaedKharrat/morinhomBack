@@ -19,12 +19,7 @@ export class PromoCodesService {
     return this.promoCodeModel.find().sort({ createdAt: -1 }).exec();
   }
 
-  async validateCode(code: string, cart: any[]): Promise<{ 
-    discount: number, 
-    discountValue: number, 
-    discountType: string,
-    type: string 
-  }> {
+  async validateCode(code: string, cart: any[]): Promise<any> {
     const promoCode = await this.promoCodeModel.findOne({ 
       code: code.toUpperCase(), 
       isActive: true 
@@ -34,6 +29,37 @@ export class PromoCodesService {
       throw new NotFoundException('Promo code not found or inactive');
     }
 
+    return this.validateActualCode(promoCode, cart);
+  }
+
+  async getBestAutomatic(cart: any[]): Promise<any | null> {
+    const automaticPromos = await this.promoCodeModel.find({ isAutomatic: true, isActive: true }).exec();
+    
+    let bestDiscount = 0;
+    let bestPromoResult: any = null;
+
+    for (const promo of automaticPromos) {
+      try {
+        const result = await this.validateActualCode(promo, cart);
+        if (result.discount > bestDiscount) {
+          bestDiscount = result.discount;
+          bestPromoResult = { ...result, code: promo.code };
+        }
+      } catch (err) {
+        // Skip promos that don't match cart
+      }
+    }
+
+    return bestPromoResult;
+  }
+
+  private async validateActualCode(promoCode: PromoCodeDocument | PromoCode, cart: any[]): Promise<{ 
+    discount: number, 
+    discountValue: number, 
+    discountType: string,
+    type: string,
+    isAutomatic: boolean 
+  }> {
     const currentTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
     // Check expiry
@@ -88,7 +114,6 @@ export class PromoCodesService {
         throw new BadRequestException('Your cart does not contain eligible items for this bundle offer');
       }
 
-      // Calculate total eligible quantity
       const totalQty = eligibleItems.reduce((acc, item) => acc + item.quantity, 0);
       const denominator = promoCode.buyQty + promoCode.getQty;
 
@@ -96,11 +121,7 @@ export class PromoCodesService {
         throw new BadRequestException(`Add at least ${denominator} eligible items to activate this offer`);
       }
 
-      // We give the 'getQty' items for free.
-      // Usually, we give the cheapest items for free in a mix-and-match bundle.
-      // Sort items by price ascending to find the "free" ones.
       const individualPrices = eligibleItems.flatMap(item => Array(item.quantity).fill(item.price)).sort((a, b) => a - b);
-      
       const freeItemsCount = Math.floor(totalQty / denominator) * promoCode.getQty;
       discount = individualPrices.slice(0, freeItemsCount).reduce((acc, p) => acc + p, 0);
     }
@@ -109,7 +130,8 @@ export class PromoCodesService {
       discount, 
       discountValue: promoCode.discountValue,
       discountType: promoCode.discountType,
-      type: promoCode.type || PromoType.CLASSIC
+      type: promoCode.type || PromoType.CLASSIC,
+      isAutomatic: promoCode.isAutomatic
     };
   }
 

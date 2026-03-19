@@ -10,6 +10,10 @@ export class CreatePromoCodeDto {
   @IsOptional()
   type?: PromoType = PromoType.CLASSIC;
 
+  @IsBoolean()
+  @IsOptional()
+  isAutomatic?: boolean = false;
+
   @IsEnum(DiscountType)
   @IsNotEmpty()
   discountType: DiscountType;

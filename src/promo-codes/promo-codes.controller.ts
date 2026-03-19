@@ -28,6 +28,11 @@ export class PromoCodesController {
     return this.promoCodesService.findAll();
   }
 
+  @Post('get-best-automatic')
+  getAutomatic(@Body('cart') cart: any[]) {
+    return this.promoCodesService.getBestAutomatic(cart);
+  }
+
   @Post('validate/:code')
   validate(@Param('code') code: string, @Body('cart') cart: any[]) {
     return this.promoCodesService.validateCode(code, cart);

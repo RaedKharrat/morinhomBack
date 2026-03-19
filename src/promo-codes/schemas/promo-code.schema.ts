@@ -17,6 +17,9 @@ export class PromoCode {
   @Prop({ required: true, unique: true, uppercase: true, trim: true })
   code: string;
 
+  @Prop({ default: false })
+  isAutomatic: boolean;
+
   @Prop({ required: true, enum: PromoType, default: PromoType.CLASSIC })
   type: PromoType;
 

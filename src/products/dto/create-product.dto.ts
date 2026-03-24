@@ -26,6 +26,11 @@ export class CreateProductDto {
   @IsNotEmpty()
   price: number;
 
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  oldPrice?: number;
+
   @IsString()
   @IsOptional()
   category?: string;

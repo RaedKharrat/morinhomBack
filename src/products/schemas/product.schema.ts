@@ -23,6 +23,9 @@ export class Product {
   @Prop({ default: true })
   inStock: boolean;
 
+  @Prop({ required: false })
+  oldPrice?: number;
+
   @Prop({ default: false })
   featured: boolean;
 

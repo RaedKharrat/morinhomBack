@@ -8,24 +8,23 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
-const storage = diskStorage({
-  destination: './uploads',
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-  },
+cloudinary.config({
+  cloud_name: 'doyyo1ylz',
+  api_key: '987966874395679',
+  api_secret: 'MyPdGXQYjR_b78JRRjJ-GgOkVDo'
 });
 
-const imageFileFilter = (req: any, file: any, cb: any) => {
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-    return cb(new BadRequestException('Only image files are allowed!'), false);
-  }
-  cb(null, true);
-};
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'morishop',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+  } as any,
+});
 
 @Controller('upload')
 export class UploadController {
@@ -34,16 +33,15 @@ export class UploadController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage,
-      fileFilter: imageFileFilter,
       limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  uploadFile(@UploadedFile() file: any) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
     return {
-      url: `/uploads/${file.filename}`,
+      url: file.path,
       filename: file.filename,
       originalname: file.originalname,
       size: file.size,
@@ -53,18 +51,17 @@ export class UploadController {
   @Post('multiple')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
-    FilesInterceptor('files', 5, {
+    FilesInterceptor('files', 4, {
       storage,
-      fileFilter: imageFileFilter,
       limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
-  uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
+  uploadFiles(@UploadedFiles() files: any[]) {
     if (!files || files.length === 0) {
       throw new BadRequestException('No files uploaded');
     }
     return files.map((file) => ({
-      url: `/uploads/${file.filename}`,
+      url: file.path,
       filename: file.filename,
       originalname: file.originalname,
       size: file.size,

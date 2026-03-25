@@ -5,6 +5,7 @@ import {
   IsString,
   IsBoolean,
   IsArray,
+  ArrayMaxSize,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -36,6 +37,7 @@ export class CreateProductDto {
   category?: string;
 
   @IsArray()
+  @ArrayMaxSize(4)
   @IsOptional()
   images?: string[];
 

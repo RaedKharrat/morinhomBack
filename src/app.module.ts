@@ -12,6 +12,7 @@ import { OrdersModule } from './orders/orders.module';
 import { PromoCodesModule } from './promo-codes/promo-codes.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { BlogsModule } from './blogs/blogs.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { APP_GUARD } from '@nestjs/core';
     MessagesModule,
     OrdersModule,
     PromoCodesModule,
+    BlogsModule,
   ],
   providers: [
     {

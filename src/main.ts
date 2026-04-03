@@ -28,8 +28,8 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: configService.get<string>('CORS_ORIGIN', 'http://localhost:3000'),
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: true, // This dynamically reflects the request origin, fixing the Vercel -> Render CORS block
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
 

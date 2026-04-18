@@ -20,11 +20,11 @@ export class BlogsService {
   }
 
   async findAll(): Promise<Blog[]> {
-    return this.blogModel.find().sort({ createdAt: -1 }).exec();
+    return this.blogModel.find().populate('product').sort({ createdAt: -1 }).exec();
   }
 
   async findOne(slug: string): Promise<Blog> {
-    const blog = await this.blogModel.findOne({ slug }).exec();
+    const blog = await this.blogModel.findOne({ slug }).populate('product').exec();
     if (!blog) {
       throw new NotFoundException(`Blog with slug ${slug} not found`);
     }
